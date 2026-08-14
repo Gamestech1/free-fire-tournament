@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Free Fire Tournament</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Account</h1>
+        <form id="register-form">
+            <input type="text" id="full-name" placeholder="Full Name" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2e2e2e; border: 1px solid #444; color: white; border-radius: 5px;">
+            <input type="text" id="ign" placeholder="In-Game Name (IGN)" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2e2e2e; border: 1px solid #444; color: white; border-radius: 5px;">
+            <input type="text" id="ff-uid" placeholder="Free Fire UID" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2e2e2e; border: 1px solid #444; color: white; border-radius: 5px;">
+            <input type="email" id="email" placeholder="Email Address" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2e2e2e; border: 1px solid #444; color: white; border-radius: 5px;">
+            <input type="password" id="password" placeholder="Password" required style="width: 90%; padding: 10px; margin: 10px 0; background: #2e2e2e; border: 1px solid #444; color: white; border-radius: 5px;">
+            <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer; margin-top: 10px;">Register</button>
+        </form>
+        <p style="margin-top: 15px; font-size: 14px;">Already have an account? <a href="login.html" style="color: #ffcc00;">Login here</a></p>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'YAHAN_APNA_SUPABASE_URL_LIKHO';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hZJVRoZrDjACam9XllkTTg_93DIHSs4';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('full-name').value;
+            const ign = document.getElementById('ign').value;
+            const ffUid = document.getElementById('ff-uid').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert('Error: ' + error.message);
+                return;
+            }
+
+            const user = data.user;
+            if (user) {
+                const { error: profileError } = await supabase.from('profiles').insert([
+                    {
+                        id: user.id,
+                        email: email,
+                        full_name: fullName,
+                        in_game_name: ign,
+                        free_fire_uid: ffUid,
+                        role: 'player'
+                    }
+                ]);
+
+                if (profileError) {
+                    alert('Profile Error: ' + profileError.message);
+                } else {
+                    alert('Registration successful! Please login now.');
+                    window.location.href = 'login.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
